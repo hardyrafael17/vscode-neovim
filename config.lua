@@ -16,7 +16,6 @@ an executable
 -- general
 lvim.log.level = "warn"
 lvim.format_on_save.enabled = false
-lvim.colorscheme = "github_dark_default"
 lvim.builtin.nvimtree.setup.view.width = 50
 lvim.builtin.nvimtree.setup.filters.custom = { ".git", ".cache" }
 
@@ -31,12 +30,16 @@ lvim.keys.insert_mode["kk"] = "<Esc>"
 
 
 -- copilot
-lvim.keys.insert_mode["<Space>ia"] = "<cmd>Copilot suggestion accept<cr>"
-lvim.keys.insert_mode["<Space>id"] = "<cmd>Copilot suggestion dismiss<cr>"
-lvim.keys.insert_mode["<Space>ip"] = "<cmd>Copilot suggestion prev<cr>"
-lvim.keys.insert_mode["<Space>in"] = "<cmd>Copilot suggestion next<cr>"
-lvim.keys.insert_mode["<Space>it"] = "<cmd>Copilot suggestion next<cr>"
+lvim.keys.insert_mode["<Space>iia"] = "<cmd>Copilot suggestion accept<cr>"
+lvim.keys.insert_mode["<Space>iid"] = "<cmd>Copilot suggestion dismiss<cr>"
+lvim.keys.insert_mode["<Space>iip"] = "<cmd>Copilot suggestion prev<cr>"
+lvim.keys.insert_mode["<Space>iin"] = "<cmd>Copilot suggestion next<cr>"
+lvim.keys.insert_mode["<Space>iio"] = "<cmd>Copilot panel open<cr>"
+lvim.keys.insert_mode["<Space>iic"] = "<cmd>Copilot panel close<cr>"
+lvim.keys.insert_mode["<Space>iit"] = "<cmd>Copilot toggle<cr>"
 
+-- convert string to camelCase
+-- 
 
 -- unmap a default keymapping
 -- vim.keymap.del("n", "<C-Up>")
@@ -120,11 +123,22 @@ formatters.setup {
 }
 
 -- -- set additional linters
-local linters = require "lvim.lsp.null-ls.linters"
-linters.setup {
-  { command = "eslint_d", filetypes = { "javascript", "typescript", "typescriptreact", "javascriptreact" },
+-- check if there is a local .eslintrc file before setting this linter
+local eslintrc = vim.fn.glob(".eslintrc*", false, true)
+if vim.fn.empty(eslintrc) == 0 then
+  -- notify that eslint is being used throug  null-ls
+  print("eslint is being used through null-ls")
+  local linters = require "lvim.lsp.null-ls.linters"
+  linters.setup {
+    { command = "eslint_d", filetypes = { "javascript", "typescript", "typescriptreact", "javascriptreact" },
+    }
   }
-}
+else
+  print("no .eslintrc file found, eslint not used")
+end
+
+-- GraphQL
+require'lspconfig'.graphql.setup{}
 
 require("custom.options")
 -- Additional Plugins
@@ -149,8 +163,45 @@ lvim.plugins = {
     end,
   },
   { 'edluffy/hologram.nvim' },
-  { 'projekt0n/github-nvim-theme' }
+  { 'projekt0n/github-nvim-theme' },
+  { "catppuccin/nvim",            name = "catppuccin" }
 }
+-- config:
+require("catppuccin").setup({
+  color_overrides = {
+    mocha = {
+      rosewater = "#efc9c2",
+      flamingo = "#ebb2b2",
+      pink = "#f2a7de",
+      mauve = "#b889f4",
+      red = "#ea7183",
+      maroon = "#ea838c",
+      peach = "#f39967",
+      yellow = "#eaca89",
+      green = "#96d382",
+      teal = "#78cec1",
+      sky = "#91d7e3",
+      sapphire = "#68bae0",
+      blue = "#739df2",
+      lavender = "#a0a8f6",
+      text = "#b5c1f1",
+      subtext1 = "#a6b0d8",
+      subtext0 = "#959ec2",
+      overlay2 = "#848cad",
+      overlay1 = "#717997",
+      overlay0 = "#63677f",
+      surface2 = "#505469",
+      surface1 = "#3e4255",
+      surface0 = "#2c2f40",
+      base = "#1a1c2a",
+      mantle = "#141620",
+      crust = "#0e0f16",
+    },
+  },
+})
+--colorscheme catppuccin " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
+lvim.colorscheme = "catppuccin-mocha"
+
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- vim.api.nvim_create_autocmd("BufEnter", {
@@ -171,7 +222,6 @@ local ok, copilot = pcall(require, "copilot")
 if not ok then
   return
 end
-
 copilot.setup({
   panel = {
     enabled = true,
