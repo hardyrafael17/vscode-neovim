@@ -1,7 +1,7 @@
+
 if vim.g.vscode then
   -- VSCode extension
-  require("vscode.lazy")
-  print("VSCode extension")
+  --
 else
   -- ordinary Neovim
   --
